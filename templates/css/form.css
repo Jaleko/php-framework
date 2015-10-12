@@ -1,0 +1,11 @@
+form label.required:after {
+	content: '\f069';
+	font-family: FontAwesome;
+	font-size: 6px;
+	position: relative;
+	top: -3px;
+}
+
+form label.has-error {
+	color: red;
+}

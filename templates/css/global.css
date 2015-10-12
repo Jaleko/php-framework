@@ -1,0 +1,13 @@
+body, input, select, textarea {
+    font-size: 12px;
+    font-family: Verdana;
+}
+
+table, th, td {
+    border: 1px solid;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 3px;
+}
