@@ -34,13 +34,14 @@
 		public function disableAppendChildren()
 		{
 			$this->append_children = false;
+			return $this;
 		}
 
-		protected function getContainer()
+		protected function getContainer($class = 'form-group')
 		{
 			$e = $this->createElement('div');
 			$attr = $this->createAttribute('class');
-			$attr->value = 'input-item';
+			$attr->value = $class;
 			$e->appendChild($attr);
 
 			return $e;
@@ -112,17 +113,17 @@
 
 		public function open()
 		{
-			//
+			echo str_replace('</form>', '', $this->__toString());
 		}
 
 		public function close()
 		{
-			//
+			echo '</form>';
 		}
 
 		public function renderItem($name)
 		{
-			if (isset($this->elements[$name])) echo $this->elements[$name];
+			if (isset($this->elements[$name])) echo $this->saveHTML($this->elements[$name]);
 		}
 
 		public function hidden($name)
@@ -141,9 +142,10 @@
 			$input = $this->createElement('input');
 			$this->setAttribute($input, 'type', 'text');
 			$this->setAttribute($input, 'id', $name.'_alternate');
+			$this->setAttribute($input, 'class', 'form-control');
 
 			$hidden = $this->input('hidden', $name);
-			$this->setAttribute($input, 'id', $name);
+			$this->setAttribute($hidden, 'id', $name);
 
 			$label = $this->getLabel($label, $name, $required);
 
@@ -161,14 +163,19 @@
 				$("#'.$name.'_alternate").datepicker({
 					altField: "#'.$name.'",
 					altFormat: "yy-mm-dd",
-					dateFormat: "'.$locale['user_date_format'].'"
+					dateFormat: "'.$locale['jquery_ui_datepicker_user_date_format'].'"
 				});
 			');
 
 			if (isset($this->data[$name]))
 			{
+				$value = $this->data[$name]; //data nel formato del database yyyy-mm-dd
+
+				$datetime = DateTime::createFromFormat('Y-m-d', $value);
+				$value = $datetime->format($locale['php_user_date_format']);
+
 				Dispatcher::getController()->getLayout()->addReadyJs('
-					$("#'.$name.'_alternate").datepicker("setDate", "'.$this->data[$name].'");
+					$("#'.$name.'_alternate").datepicker("setDate", "'.$value.'");
 				');
 			}
 			return $this;
@@ -178,6 +185,7 @@
 		{
 			$input = $this->input('text', $name);
 			$this->setAttribute($input, 'id', $name);
+			$this->setAttribute($input, 'class', 'form-control');
 
 			$label = $this->getLabel($label, $name, $required);
 
@@ -196,6 +204,7 @@
 			$input = $this->input('submit', $name);
 			$this->setAttribute($input, 'value', $label);
 			$this->setAttribute($input, 'id', $name);
+			$this->setAttribute($input, 'class', 'btn btn-default');
 
 			$container = $this->getContainer();
 			$container->appendChild($input);
@@ -210,6 +219,7 @@
 		{
 			$input = $this->input('password', $name);
 			$this->setAttribute($input, 'id', $name);
+			$this->setAttribute($input, 'class', 'form-control');
 
 			$label = $this->getLabel($label, $name, $required);
 
@@ -248,6 +258,7 @@
 			if (isset($this->data[$name])) $value = $this->data[$name];
 
 			$fieldset = $this->getFieldset($label, $name, $required);
+			$this->setAttribute($fieldset, 'class', 'form-group');
 
 			foreach ($options as $val => $option_label)
 			{
@@ -260,7 +271,7 @@
 
 				if ($value == $val) $this->setAttribute($input, 'checked', 'checked');
 
-				$container = $this->getContainer();
+				$container = $this->getContainer('radio');
 				$container->appendChild($input);
 				$container->appendChild($label);
 				$fieldset->appendChild($container);
@@ -280,6 +291,7 @@
 			$select = $this->createElement('select');
 			$this->setAttribute($select, 'name', $name);
 			$this->setAttribute($select, 'id', $name);
+			$this->setAttribute($select, 'class', 'form-control');
 
 			foreach ($options as $val => $option_label)
 			{
@@ -306,6 +318,7 @@
 		{
 			if (isset($this->data[$name])) $values = $this->data[$name];
 			$fieldset = $this->getFieldset($label, $name, $required);
+			$this->setAttribute($fieldset, 'class', 'form-group');
 
 			foreach ($options as $val => $option_label)
 			{
@@ -318,7 +331,7 @@
 
 				if (is_array($values) and in_array($val, $values)) $this->setAttribute($input, 'checked', 'checked');
 
-				$container = $this->getContainer();
+				$container = $this->getContainer('checkbox');
 				$container->appendChild($input);
 				$container->appendChild($label);
 				$fieldset->appendChild($container);
@@ -337,7 +350,9 @@
 			$this->setAttribute($textarea, 'name', $name);
 			$this->setAttribute($textarea, 'id', $name);
 
-			if ($editor) $this->setAttribute($textarea, 'class', 'editor');
+			$class = 'form-control';
+			if ($editor) $class .= ' editor';
+			$this->setAttribute($textarea, 'class', $class);
 			
 			$container = $this->getContainer();
 			$container->appendChild($textarea);

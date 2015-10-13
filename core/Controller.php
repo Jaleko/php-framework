@@ -57,8 +57,10 @@ class Controller
 
 	public function getLocale()
 	{
+		setlocale(LC_ALL, 'it_IT');
 		return array(
-			'user_date_format' => 'dd-mm-yy' //formato data di jquery ui datepicker per gli utenti
+			'jquery_ui_datepicker_user_date_format' => 'dd-mm-yy', //formato data di jquery ui datepicker per gli utenti
+			'php_user_date_format' => 'd-m-Y' //serve nel form per datepicker. deve corrispondere allo stesso formato di jquery_ui_datepicker_user_date_format
 		);
 	}
 }
